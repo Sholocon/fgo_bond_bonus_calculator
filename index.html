@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FGO 羈絆收益計算器</title>
-	<link rel="icon" type="image/png" href="img/favicon.png"/>
+    <title>FGO 羈絆計算器v1.1</title>
+    <link rel="icon" type="image/png" href="img/favicon.png"/>
     <style>
         @charset 'UTF-8';
-        html, div, h2, form, label, button {
+        html, div, h2, form, label, button, input {
             margin: 0;
             padding: 0;
             border: 0;
@@ -17,17 +17,23 @@
         }
         body {
             background: url('img/bg_ptn.gif');
-			-webkit-text-size-adjust: 100%;
-            max-width: 600px;
+            -webkit-text-size-adjust: 100%;
+            max-width: 1200px;
             margin: 20px auto;
             padding: 20px;
-			user-select: none;
+            user-select: none;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
         }
         .container {
             background-color: rgba(255, 255, 255, 0.95);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            min-width: 300px;
+            max-width: 580px;
         }
         label {
             display: block;
@@ -74,21 +80,23 @@
         button:hover {
             background-color: #0092FF;
         }
-        #result {
+        #result, #runResult {
             margin-top: 20px;
             font-weight: bold;
-			user-select: text;
+            user-select: text;
         }
         #ceBonus {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 10px;
-		}
-
-		#ce1, #ce2, #ce3, #ce4, #ce5, #ce6 {
-			flex: 1 1 calc(33.33% - 10px);
-			box-sizing: border-box;
-		}
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        #ce1, #ce2, #ce3, #ce4, #ce5, #ce6 {
+            flex: 1 1 calc(33.33% - 10px);
+            box-sizing: border-box;
+        }
+        input:disabled {
+            background-color: #f0f0f0;
+        }
     </style>
 </head>
 <body>
@@ -204,13 +212,40 @@
             
             <br><br>
             <button type="submit">計算獲得羈絆</button>
-			<button id="clearFormBtn">清除所有選項</button>
+            <button id="clearBondFormBtn">清除所有選項</button>
         </form>
         <hr>
         <div id="result"></div>
     </div>
+
+    <div class="container">
+        <h2>FGO 通關次數計算器</h2>
+        <form id="runForm">
+            <label for="requiredBond">升級所需羈絆：</label>
+            <input type="number" id="requiredBond" min="0" step="1" value="0" required>
+			<hr>
+            
+            <label for="staminaCap">體力上限：</label>
+            <input type="number" id="staminaCap" min="0" step="1" value="0" required>
+            
+            <label for="staminaCost">關卡所需體力：</label>
+            <input type="number" id="staminaCost" min="0" step="1" value="0" required>
+            
+            <label for="bondPerRun">通關一次獲得羈絆（可從左側計算器取得）：</label>
+            <input type="number" id="bondPerRun" min="0" step="1" value="0" required>
+            
+            <br><br>
+            <button type="submit">計算通關次數</button>
+            <button id="clearRunFormBtn">清除所有選項</button>
+        </form>
+        <hr>
+        <div id="runResult"></div>
+    </div>
     
     <script>
+        let latestBondResult = 0;
+
+        // bond bonus calculator
         document.getElementById('bondForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
@@ -241,19 +276,90 @@
                     ) * (1 + ceTotalBonus + blv15Bonus + eventBonus + mashBonus)
                 ) + isPortraitBonus) * isTeapot;
 
+            // save result for run calculator
+            latestBondResult = bond;
+
             // show result
             document.getElementById('result').innerHTML = `獲得羈絆：${baseBond} (+${bond-baseBond}) 點<br>
-                                                          總共：${bond} 點`;
+                                                        總共：${bond} 點`;
+            
+            // update bondPerRun in run calculator
+            document.getElementById('bondPerRun').value = bond;
         });
-		
-		const clearFormBtn = document.getElementById("clearFormBtn");
-		clearFormBtn.addEventListener("click", clearForm);
-		
-		function clearForm() {
-			event.preventDefault()
-			document.getElementById("bondForm").reset();
-			document.getElementById('result').innerHTML = ``;
-		}
+
+        // runs calculator
+		document.getElementById('runForm').addEventListener('submit', function(event) {
+			event.preventDefault();
+
+			// get values
+			const requiredBond = parseFloat(document.getElementById('requiredBond').value);
+			const staminaCap = parseFloat(document.getElementById('staminaCap').value);
+			const staminaCost = parseFloat(document.getElementById('staminaCost').value);
+			const bondPerRun = parseFloat(document.getElementById('bondPerRun').value);
+
+			// check value valid or not, if no then 0
+			if (isNaN(requiredBond) || isNaN(staminaCap) || isNaN(staminaCost) || isNaN(bondPerRun) ||
+				requiredBond <= 0 || staminaCap <= 0 || staminaCost <= 0 || bondPerRun <= 0) {
+				document.getElementById('runResult').innerHTML = `
+					需要周回次數：0 場<br>
+					需要體力總量：0 點<br>
+					<hr>
+					所需蘋果數量（不考慮自然回體）：<br>
+					<label>金蘋果所需數量：</label>
+					<input type="number" value="0" disabled><br>
+					<label>銀蘋果所需數量：</label>
+					<input type="number" value="0" disabled><br>
+					<label>銅蘋果所需數量：</label>
+					<input type="number" value="0" disabled><br>
+					<label>青蘋果所需數量：</label>
+					<input type="number" value="0" disabled>
+				`;
+				return;
+			}
+
+			// calculate runs needed (ceiling)
+			const runsNeeded = Math.ceil(requiredBond / bondPerRun);
+
+			// calculate total stamina
+			const totalStamina = runsNeeded * staminaCost;
+
+			// calculate apples (ceiling for all)
+			const goldApples = Math.ceil(totalStamina / staminaCap);
+			const silverApples = Math.ceil(totalStamina / Math.floor(staminaCap / 2));
+			const bronzeApples = Math.ceil(totalStamina / 10);
+			const blueApples = Math.ceil(totalStamina / 40);
+
+			// show results
+			document.getElementById('runResult').innerHTML = `
+				需要周回次數：${runsNeeded} 場<br>
+				需要體力總量：${totalStamina} 點<br>
+				<hr>
+				所需蘋果數量（不考慮自然回體）：<br>
+				<label>金蘋果所需數量：</label>
+				<input type="number" value="${goldApples}" disabled><br>
+				<label>銀蘋果所需數量：</label>
+				<input type="number" value="${silverApples}" disabled><br>
+				<label>銅蘋果所需數量：</label>
+				<input type="number" value="${bronzeApples}" disabled><br>
+				<label>青蘋果所需數量：</label>
+				<input type="number" value="${blueApples}" disabled>
+			`;
+		});
+
+        // 清空羈絆計算器
+        document.getElementById('clearBondFormBtn').addEventListener('click', function(event) {
+            event.preventDefault();
+            document.getElementById('bondForm').reset();
+            document.getElementById('result').innerHTML = '';
+            latestBondResult = 0;
+        });
+
+        // 清空通關計算器
+        document.getElementById('clearRunFormBtn').addEventListener('click', function(event) {
+            event.preventDefault();
+            document.getElementById('runForm').reset();
+            document.getElementById('runResult').innerHTML = '';
+        });
     </script>
 </body>
 </html>
