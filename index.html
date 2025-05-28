@@ -204,6 +204,7 @@
             
             <br><br>
             <button type="submit">計算獲得羈絆</button>
+			<button id="clearFormBtn">清除所有選項</button>
         </form>
         <hr>
         <div id="result"></div>
@@ -244,6 +245,15 @@
             document.getElementById('result').innerHTML = `獲得羈絆：${baseBond} (+${bond-baseBond}) 點<br>
                                                           總共：${bond} 點`;
         });
+		
+		const clearFormBtn = document.getElementById("clearFormBtn");
+		clearFormBtn.addEventListener("click", clearForm);
+		
+		function clearForm() {
+			event.preventDefault()
+			document.getElementById("bondForm").reset();
+			document.getElementById('result').innerHTML = ``;
+		}
     </script>
 </body>
 </html>
