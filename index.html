@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FGO 羈絆收益計算器</title>
+    <style>
+        @charset 'UTF-8';
+        html, div, h2, form, label, button {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            outline: 0;
+            vertical-align: baseline;
+            background: transparent;
+        }
+        body {
+            background: url('bgimg/bg_ptn.gif');
+			-webkit-text-size-adjust: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+			user-select: none;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        .multiplier-section {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .multiplier-item {
+            flex: 1;
+        }
+        .multiplier-item label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        .multiplier-item select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        select, input {
+            width: 100%;
+            max-width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3EA8E4;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 100%;
+        }
+        button:hover {
+            background-color: #0092FF;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+			user-select: text;
+        }
+        #ceBonus {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+		}
+
+		#ce1, #ce2, #ce3, #ce4, #ce5, #ce6 {
+			flex: 1 1 calc(33.33% - 10px);
+			box-sizing: border-box;
+		}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>FGO 羈絆收益計算器</h2>
+        <form id="bondForm">
+            <label for="baseBond">關卡提供的基礎羈絆：</label>
+            <input type="number" id="baseBond" min="0" step="1" value="0" required>
+            <hr>
+            
+            <h2>先發成員</h2>
+            <div class="multiplier-section">
+                <div class="multiplier-item">
+                    <label for="isStartMember">是否為先發成員（20%）：</label>
+                    <select id="isStartMember">
+                        <option value="0">否</option>
+                        <option value="0.2">是 (20%)</option>
+                    </select>
+                </div>
+                <div class="multiplier-item">
+                    <label for="isSupportStartMember">支援從者是否為先發成員（4%）：</label>
+                    <select id="isSupportStartMember">
+                        <option value="0">否</option>
+                        <option value="0.04">是 (4%)</option>
+                    </select>
+                </div>
+            </div>
+            <hr>
+            
+            <h2>加成要素</h2>
+            <label>羈絆加成禮裝：</label>
+            <div id="ceBonus">
+                <select id="ce1">
+                    <option value="0">無</option>
+                    <option value="0.2">20%</option>
+                    <option value="0.15">15%</option>
+                    <option value="0.1">10%</option>
+                    <option value="0.05">5%</option>
+                    <option value="0.025">2.5%</option>
+                </select>
+                <select id="ce2">
+                    <option value="0">無</option>
+                    <option value="0.2">20%</option>
+                    <option value="0.15">15%</option>
+                    <option value="0.1">10%</option>
+                    <option value="0.05">5%</option>
+                    <option value="0.025">2.5%</option>
+                </select>
+                <select id="ce3">
+                    <option value="0">無</option>
+                    <option value="0.2">20%</option>
+                    <option value="0.15">15%</option>
+                    <option value="0.1">10%</option>
+                    <option value="0.05">5%</option>
+                    <option value="0.025">2.5%</option>
+                </select>
+                <select id="ce4">
+                    <option value="0">無</option>
+                    <option value="0.2">20%</option>
+                    <option value="0.15">15%</option>
+                    <option value="0.1">10%</option>
+                    <option value="0.05">5%</option>
+                    <option value="0.025">2.5%</option>
+                </select>
+                <select id="ce5">
+                    <option value="0">無</option>
+                    <option value="0.2">20%</option>
+                    <option value="0.15">15%</option>
+                    <option value="0.1">10%</option>
+                    <option value="0.05">5%</option>
+                    <option value="0.025">2.5%</option>
+                </select>
+                <select id="ce6">
+                    <option value="0">無</option>
+                    <option value="0.2">20%</option>
+                    <option value="0.15">15%</option>
+                    <option value="0.1">10%</option>
+                    <option value="0.05">5%</option>
+                    <option value="0.025">2.5%</option>
+                </select>
+            </div>
+            
+            <label for="isPortraitBonus">英靈肖像（+50羈絆）：</label>
+            <select id="isPortraitBonus">
+                <option value="0">無</option>
+                <option value="50">有 (+50)</option>
+            </select>
+            
+            <label for="blv15Bonus">羈絆等級15從者加成（支援不計算）：</label>
+            <select id="blv15Bonus">
+                <option value="0">無</option>
+                <option value="0.25">1個 (25%)</option>
+                <option value="0.5">2個 (50%)</option>
+                <option value="0.75">3個 (75%)</option>
+                <option value="1">4個 (100%)</option>
+            </select>
+
+            <label for="eventBonus">從者活動加成％（毋須輸入符號）：</label>
+            <input type="number" id="eventBonus" min="0" step="1" value="0">
+
+            <label for="mashBonus">瑪修羈絆加成：</label>
+            <select id="mashBonus">
+                <option value="0">無</option>
+                <option value="0.05">活動加成 (5%)</option>
+                <option value="0.2">第2部主線加成 (20%)</option>
+            </select>
+            
+            <label for="isTeapot">使用占星茶壺（獲得2倍羈絆）：</label>
+            <select id="isTeapot">
+                <option value="1">不使用</option>
+                <option value="2">使用</option>
+            </select>
+            
+            <br><br>
+            <button type="submit">計算獲得羈絆</button>
+        </form>
+        <hr>
+        <div id="result"></div>
+    </div>
+    
+    <script>
+        document.getElementById('bondForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // get value
+            const baseBond = parseFloat(document.getElementById('baseBond').value);
+            const isStartMember = parseFloat(document.getElementById('isStartMember').value);
+            const isSupportStartMember = parseFloat(document.getElementById('isSupportStartMember').value);
+            const ce1 = parseFloat(document.getElementById('ce1').value);
+            const ce2 = parseFloat(document.getElementById('ce2').value);
+            const ce3 = parseFloat(document.getElementById('ce3').value);
+            const ce4 = parseFloat(document.getElementById('ce4').value);
+            const ce5 = parseFloat(document.getElementById('ce5').value);
+            const ce6 = parseFloat(document.getElementById('ce6').value);
+            const isPortraitBonus = parseFloat(document.getElementById('isPortraitBonus').value);
+            const blv15Bonus = parseFloat(document.getElementById('blv15Bonus').value);
+            const eventBonus = parseFloat(document.getElementById('eventBonus').value)/100;
+            const mashBonus = parseFloat(document.getElementById('mashBonus').value);
+            const isTeapot = parseFloat(document.getElementById('isTeapot').value);
+
+            // sum of 6 ces
+            const ceTotalBonus = ce1 + ce2 + ce3 + ce4 + ce5 + ce6;
+
+            // apply the bond bonus algorithm
+            const bond = 
+                (Math.floor(
+                    Math.floor(
+                        baseBond * (1 + isStartMember + isSupportStartMember)
+                    ) * (1 + ceTotalBonus + blv15Bonus + eventBonus + mashBonus)
+                ) + isPortraitBonus) * isTeapot;
+
+            // show result
+            document.getElementById('result').innerHTML = `獲得羈絆：${baseBond} (+${bond-baseBond}) 點<br>
+                                                          總共：${bond} 點`;
+        });
+    </script>
+</body>
+</html>
